@@ -1,7 +1,7 @@
 image:
   repository: tibkiss/es2postgres
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 es: 
   url: http://elasticsearch-master:9200

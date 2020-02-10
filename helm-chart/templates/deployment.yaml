@@ -50,7 +50,7 @@ spec:
             - name: CSV_SED_CMD
               value: {{ .Values.csvSedCmd | quote}}
             - name: CSV_TMPFILE_PATH
-              value: /tmp/esdump.csv
+              value: /data/esdump.csv
             - name: REFRESH_INTERVAL
               value: {{ required "refreshInterval is required" .Values.refreshInterval | quote }}
           volumeMounts:
