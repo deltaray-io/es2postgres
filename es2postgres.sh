@@ -7,7 +7,7 @@
 [ -n "${PG_DATABASE}" ] || { echo "Please set PG_DATABASE env var"; exit 1; }
 [ -n "${PG_USER}" ] || { echo "Please set PG_USER env var"; exit 1; }
 [ -n "${PG_PASSWORD}" ] || { echo "Please set PG_PASSWORD env var"; exit 1; }
-[ -n "${PG_SCHEMA_FILE}" ] || { echo "Please set PG_SCHEMA_FILE env var"; exit 1; }
+[ -n "${PG_DDL_FILE}" ] || { echo "Please set PG_DDL_FILE env var"; exit 1; }
 [ -n "${PG_TABLE_NAME}" ] || { echo "Please set PG_TABLE_NAME env var"; exit 1; }
 [ -n "${PG_SCHEMA_NAME}" ] || { echo "Please set PG_SCHEMA_NAME env var"; exit 1; }
 [ -n "${PG_TIME_FIELD}" ] || { echo "Please set PG_TIME_FIELD env var"; exit 1; }
@@ -26,9 +26,9 @@ export PGPASSWORD=${PG_PASSWORD}
 
 ## Init
 table_exists=$(psql -X -A -t -c "SELECT EXISTS (SELECT 1 FROM  information_schema.tables WHERE table_schema = '${PG_SCHEMA_NAME}' AND table_name = '${PG_TABLE_NAME}')")
-#if [ "${table_exists}" != "t" ]; then
-  psql -f ${PG_SCHEMA_FILE}
-#fi
+if [ "${table_exists}" != "t" ]; then
+  psql -f ${PG_DDL_FILE}
+fi
 
 table_column_names=$(psql -X -A -t -c "select column_name FROM information_schema.columns WHERE table_schema='${PG_SCHEMA_NAME}' AND table_name='${PG_TABLE_NAME}'")
 
