@@ -5,6 +5,7 @@
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ElasticSearch to PostgreSQL Loader.
+
 Uses es2csv, xsv, sed and psql client to periodically Extract, Transform and Load data from ES to PSQL.
 
 ## Usage
