@@ -1,0 +1,38 @@
+image:
+  repository: tibkiss/es2postgres
+  tag: latest
+  pullPolicy: IfNotPresent
+
+es: 
+  url: http://elasticsearch-master:9200
+  indexPattern: filebeat-*
+
+pg:
+  host: postgresql
+  user: postgres
+  # password: null
+  # database: null
+  # ddl: null
+  schemaName: public
+  tableName: null
+  timeField: null
+
+csvSedCmd: ""
+refreshInterval: 3600
+
+nameOverride: ""
+fullnameOverride: ""
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

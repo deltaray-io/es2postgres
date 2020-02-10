@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "es2postgres.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "es2postgres.name" . }}
+    helm.sh/chart: {{ include "es2postgres.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "es2postgres.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "es2postgres.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ES_URL
+              value: {{ required "es.url is required" .Values.es.url | quote}}
+            - name: ES_INDEX_PATTERN
+              value: {{ required "es.indexPattern is required" .Values.es.indexPattern | quote}}
+            - name: PG_HOST
+              value: {{ required "pg.host is required" .Values.pg.host | quote}}
+            - name: PG_USER
+              value: {{ required "pg.user is required" .Values.pg.user | quote }}
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "es2postgres.fullname" . }}
+                  key: pgPassword
+            - name: PG_DATABASE
+              value: {{ required "pg.database is required" .Values.pg.database | quote }}
+            - name: PG_DDL_FILE
+              value: /data/ddl.sql
+            - name: PG_SCHEMA_NAME
+              value: {{ required "pg.schemaName is required" .Values.pg.schemaName | quote }}
+            - name: PG_TABLE_NAME
+              value: {{ required "pg.tableName is required" .Values.pg.tableName | quote }}
+            - name: PG_TIME_FIELD
+              value: {{ required "pg.timeField is required" .Values.pg.timeField | quote }}
+            - name: CSV_SED_CMD
+              value: {{ .Values.csvSedCmd | quote}}
+            - name: CSV_TMPFILE_PATH
+              value: /tmp/esdump.csv
+            - name: REFRESH_INTERVAL
+              value: {{ required "refreshInterval is required" .Values.refreshInterval | quote }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: ddl
+              mountPath: /data/ddl.sql
+              subPath: ddl.sql
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: ddl
+          configMap:
+            name: {{ include "es2postgres.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
