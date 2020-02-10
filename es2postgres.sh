@@ -38,7 +38,7 @@ table_column_names=$(psql -X -A -t -c "select column_name FROM information_schem
 while true; do
   last_timestamp=$(psql -X -A -t -c "SELECT TO_CHAR(${PG_TIME_FIELD}, 'YYYY-MM-DD\"T\"HH24:MI:SS.MS') from ${PG_TABLE_NAME} ORDER BY ${PG_TIME_FIELD} DESC LIMIT 1")
   if [ -z "${last_timestamp}" ]; then
-    start_date="2020-02-06"
+    start_date="1984-01-01"
   else
     start_date=${last_timestamp}  
   fi
