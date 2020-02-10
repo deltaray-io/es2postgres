@@ -8,6 +8,8 @@ ElasticSearch to PostgreSQL Loader.
 Uses es2csv, xsv, sed and psql client to periodically Extract, Transform and Load data from ES to PSQL.
 
 ## Usage
+
+### Docker
 ```bash
 docker run \
   -e ES_URL="http://my_elasticsearch_host:9200" \
@@ -26,6 +28,27 @@ docker run \
   -v $(pwd)/table.sql:/tmp/table.sql \
   tibkiss/es2postgres
 ```
+
+### Kubernetes / Helm
+```bash
+git clone https://github.com/tibkiss/es2postgres
+cd es2postgres
+cp /path/to/my/ddl.sql helm-chart/ddl.sql
+
+helm install \
+  --name es2postgres \
+  --set es.url=http://elasticsearch-master:9200 \
+  --set es.indexPattern="logstash-*" \
+  --set pg.host="postgresql" \
+  --set pg.password=superSeKretPaSS \
+  --set pg.database=my_database \
+  --set pg.tableName=my_table \
+  --set pg.timeField=time \
+  --set pg.ddl=ddl.sql \
+  --set csvSedCmd="1s/@timestamp/timestamp/ ; 1s/kubernetes\.labels\.release/my_instance/ " \
+  ./helm-chart
+```
+
 
 ## License
 Licensed under the Apache License, Version 2.0 (the "License");
