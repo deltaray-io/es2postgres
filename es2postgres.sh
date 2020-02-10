@@ -25,6 +25,7 @@ export PGPASSWORD=${PG_PASSWORD}
 
 
 ## Init
+# TODO: Schema check & migration
 table_exists=$(psql -X -A -t -c "SELECT EXISTS (SELECT 1 FROM  information_schema.tables WHERE table_schema = '${PG_SCHEMA_NAME}' AND table_name = '${PG_TABLE_NAME}')")
 if [ "${table_exists}" != "t" ]; then
   psql -f ${PG_DDL_FILE}
