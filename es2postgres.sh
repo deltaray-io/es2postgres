@@ -31,7 +31,7 @@ if [ "${table_exists}" != "t" ]; then
   psql -f ${PG_DDL_FILE}
 fi
 
-table_column_names=$(psql -X -A -t -c "select column_name FROM information_schema.columns WHERE table_schema='${PG_SCHEMA_NAME}' AND table_name='${PG_TABLE_NAME}'")
+export table_column_names=$(psql -X -A -t -c "SELECT column_name FROM information_schema.columns WHERE table_schema='${PG_SCHEMA_NAME}' AND table_name='${PG_TABLE_NAME}'" | tr "\n" ",")
 
 
 ## Main
@@ -58,11 +58,9 @@ while true; do
     fi
 
     # xsv fails if we specify columns which does not exists.
-    existent_column_names=""
-    for column_name in ${table_column_names}; do
-      head -1 ${CSV_TMPFILE_PATH} | grep ${column_name} && existent_column_names="${existent_column_names}${column_name},"
-    done
-    cat ${CSV_TMPFILE_PATH} | xsv select ${existent_column_names::-1} > ${FILTERED_CSV_PATH}
+    existent_column_names=$(head -1 ${CSV_TMPFILE_PATH} | python -c "import sys, os; line=list(sys.stdin)[0].split(','); table_column_names=os.getenv('table_column_names').split(','); print(','.join([e for e in line if e in table_column_names]))")
+
+    cat ${CSV_TMPFILE_PATH} | xsv select ${existent_column_names} > ${FILTERED_CSV_PATH}
 
     psql -c "\\copy ${PG_TABLE_NAME}($(head -1 ${FILTERED_CSV_PATH})) FROM ${FILTERED_CSV_PATH} CSV HEADER"
 
