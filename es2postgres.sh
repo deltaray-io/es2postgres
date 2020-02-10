@@ -51,21 +51,22 @@ while true; do
          --kibana-nested \
          --output ${CSV_TMPFILE_PATH}
 
-  if [ ! -z "${CSV_SED_CMD}" ]; then
-    sed -i "${CSV_SED_CMD}" ${CSV_TMPFILE_PATH} 
+  if [ -f "${CSV_TMPFILE_PATH}" ]; then
+    if [ ! -z "${CSV_SED_CMD}" ]; then
+      sed -i "${CSV_SED_CMD}" ${CSV_TMPFILE_PATH}
+    fi
+
+    # xsv fails if we specify columns which does not exists.
+    existent_column_names=""
+    for column_name in ${table_column_names}; do
+      head -1 ${CSV_TMPFILE_PATH} | grep ${column_name} && existent_column_names="${existent_column_names}${column_name},"
+    done
+    cat ${CSV_TMPFILE_PATH} | xsv select ${existent_column_names::-1} > ${FILTERED_CSV_PATH}
+
+    psql -c "\\copy ${PG_TABLE_NAME}($(head -1 ${FILTERED_CSV_PATH})) FROM ${FILTERED_CSV_PATH} CSV HEADER"
+
+    rm -f ${CSV_TMPFILE_PATH} ${FILTERED_CSV_PATH}
   fi
-
-
-  # xsv fails if we specify columns which does not exists.
-  existent_column_names=""
-  for column_name in ${table_column_names}; do
-    head -1 ${CSV_TMPFILE_PATH} | grep ${column_name} && existent_column_names="${existent_column_names}${column_name},"
-  done
-  cat ${CSV_TMPFILE_PATH} | xsv select ${existent_column_names::-1} > ${FILTERED_CSV_PATH}
-
-  psql -c "\\copy ${PG_TABLE_NAME}($(head -1 ${FILTERED_CSV_PATH})) FROM ${FILTERED_CSV_PATH} CSV HEADER"
-
-  rm -f ${CSV_TMPFILE_PATH} ${FILTERED_CSV_PATH}
 
   sleep ${REFRESH_INTERVAL}
 done
