@@ -34,7 +34,7 @@ docker run \
   tibkiss/es2postgres
 ```
 
-### Kubernetes / Helm
+### Kubernetes / Helm-2.x
 ```bash
 git clone https://github.com/tibkiss/es2postgres
 cd es2postgres
