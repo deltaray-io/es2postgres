@@ -6,7 +6,11 @@
 
 ElasticSearch to PostgreSQL Loader.
 
-Uses es2csv, xsv, sed and psql client to periodically Extract, Transform and Load data from ES to PSQL.
+Uses [es2csv](https://github.com/tibkiss/es2csv), [xsv](https://github.com/BurntSushi/xsv), [GNU sed](https://www.gnu.org/software/sed/) and psql client to periodically Extract, Transform and Load data from ES to PSQL.
+
+* Extract: ElasticSearch is queried from the last ingestion point for new data (delta-load). The result is stored in a CSV file.
+* Transform: Currently limited to column name changes via GNU sed expressions.
+* Load: The transformed data is loaded to PostgreSQL Database using the provided schema.
 
 ## Usage
 
