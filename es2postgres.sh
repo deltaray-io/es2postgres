@@ -43,7 +43,8 @@ while true; do
     start_date=${last_timestamp}  
   fi
 
-  es2csv --url ${ES_URL} \
+  time es2csv \
+         --url ${ES_URL} \
          --scroll-size 1000 \
          --raw \
          --query "{\"query\": {\"range\": {\"@timestamp\": {\"gt\": \"${start_date}\", \"lte\": \"now\"}}}}" \
@@ -62,7 +63,7 @@ while true; do
 
     cat ${CSV_TMPFILE_PATH} | xsv select ${existent_column_names} > ${FILTERED_CSV_PATH}
 
-    psql -c "\\copy ${PG_TABLE_NAME}($(head -1 ${FILTERED_CSV_PATH})) FROM ${FILTERED_CSV_PATH} CSV HEADER"
+    time psql -c "\\copy ${PG_TABLE_NAME}($(head -1 ${FILTERED_CSV_PATH})) FROM ${FILTERED_CSV_PATH} CSV HEADER"
 
     rm -f ${CSV_TMPFILE_PATH} ${FILTERED_CSV_PATH}
   fi
